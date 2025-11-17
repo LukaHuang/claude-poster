@@ -24,7 +24,7 @@ https://github.com/LukaHuang/fb-poster/settings/pages
 
 設定：
 - **Source**: `GitHub Actions` ⚠️ 必須選這個！
-- **Custom domain**: `tool.luka.tw`
+- **Custom domain**: `claud-poster.luka.tw`
 - **Enforce HTTPS**: ✅ 勾選
 
 ### 2️⃣ 設定 DNS
@@ -33,15 +33,17 @@ https://github.com/LukaHuang/fb-poster/settings/pages
 
 ```
 Type: CNAME
-Name: tool
+Name: claud-poster
 Value: lukahuang.github.io
+TTL: Auto
+Proxy: 建議關閉（讓 GitHub Pages 處理 HTTPS）
 ```
 
 ### 3️⃣ 部署
 
 ```bash
 git add .
-git commit -m "Your commit message"
+git commit -m "Set custom domain to claud-poster.luka.tw"
 git push origin main
 ```
 
@@ -57,7 +59,7 @@ https://github.com/LukaHuang/fb-poster/actions
 
 ## 📋 部署後的網址
 
-- **自訂網域**: https://tool.luka.tw/fb-poster
+- **自訂網域**: https://claud-poster.luka.tw
 - **GitHub 網址**: https://lukahuang.github.io/fb-poster
 
 ---
@@ -104,15 +106,15 @@ git push origin main
 
 ### 網站無法訪問
 
-1. 等待 DNS 傳播（可能需要幾分鐘）
-2. 檢查 `public/CNAME` 檔案內容是否為 `tool.luka.tw`
-3. 確認 DNS 設定正確：`dig tool.luka.tw`
+1. 等待 DNS 傳播（可能需要幾分鐘到幾小時）
+2. 檢查 `public/CNAME` 檔案內容是否為 `claud-poster.luka.tw`
+3. 確認 DNS 設定正確：`dig claud-poster.luka.tw`
 4. 在 GitHub Pages 設定中重新輸入自訂網域
 
 ### 樣式或資源載入失敗
 
 1. 檢查 `vite.config.js` 中的 `base` 設定
-2. 目前設定：`base: '/fb-poster/'`
+2. 目前設定：`base: '/'`（子網域使用根路徑）
 3. 確認所有資源路徑都是相對路徑
 
 ---
