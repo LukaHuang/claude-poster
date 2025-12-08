@@ -16,6 +16,9 @@ function App() {
   const [history, setHistory] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [outputFormat, setOutputFormat] = useState('plain') // 'plain' 或 'fb'
+  const [preserveUrls, setPreserveUrls] = useState(true)
+  const [preserveEmails, setPreserveEmails] = useState(true)
+  const [preserveNumbers, setPreserveNumbers] = useState(true)
 
   // refs for textarea synchronization
   const inputRef = useRef(null)
@@ -99,6 +102,9 @@ function App() {
         const settings = JSON.parse(savedSettings)
         if (settings.replacementRules) setReplacementRules(settings.replacementRules)
         if (settings.outputFormat) setOutputFormat(settings.outputFormat)
+        if (settings.preserveUrls !== undefined) setPreserveUrls(settings.preserveUrls)
+        if (settings.preserveEmails !== undefined) setPreserveEmails(settings.preserveEmails)
+        if (settings.preserveNumbers !== undefined) setPreserveNumbers(settings.preserveNumbers)
       } catch (e) {
         console.error('Failed to load settings:', e)
       }
@@ -109,10 +115,13 @@ function App() {
   useEffect(() => {
     const settings = {
       replacementRules,
-      outputFormat
+      outputFormat,
+      preserveUrls,
+      preserveEmails,
+      preserveNumbers
     }
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
-  }, [replacementRules, outputFormat])
+  }, [replacementRules, outputFormat, preserveUrls, preserveEmails, preserveNumbers])
 
   // 儲存到歷史紀錄
   const saveToHistory = (input, output, format) => {
@@ -191,13 +200,13 @@ function App() {
 
   // 自動執行轉換
   const performConversion = (text) => {
-    let result = replaceText(text, replacementRules)
-    
+    let result = replaceText(text, replacementRules, { preserveUrls, preserveEmails, preserveNumbers })
+
     // 如果是 FB 發文格式，加上 whitespace 轉換
     if (outputFormat === 'fb') {
       result = convertWhitespace(result)
     }
-    
+
     return result
   }
 
@@ -209,7 +218,7 @@ function App() {
     } else {
       setOutputText('')
     }
-  }, [inputText, replacementRules, outputFormat])
+  }, [inputText, replacementRules, outputFormat, preserveUrls, preserveEmails, preserveNumbers])
 
 
   // 轉換與複製按鈕
@@ -524,6 +533,51 @@ function App() {
                   <div>
                     <span className="text-lg font-bold uppercase block">{t('format.fb.title')}</span>
                     <span className="text-sm text-gray-600">{t('format.fb.description')}</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* 保護設定 */}
+            <div className="container-brutalist p-6 bg-brutalist-orange">
+              <h2 className="text-2xl font-bold uppercase mb-4 border-b-4 border-brutalist-black pb-2">
+                {t('protection.title')}
+              </h2>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer p-3 bg-white border-4 border-brutalist-black hover:translate-x-1 hover:translate-y-1 transition-transform">
+                  <input
+                    type="checkbox"
+                    checked={preserveUrls}
+                    onChange={(e) => setPreserveUrls(e.target.checked)}
+                    className="w-5 h-5 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-lg font-bold uppercase block">{t('protection.preserveUrls.title')}</span>
+                    <span className="text-sm text-gray-600">{t('protection.preserveUrls.description')}</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer p-3 bg-white border-4 border-brutalist-black hover:translate-x-1 hover:translate-y-1 transition-transform">
+                  <input
+                    type="checkbox"
+                    checked={preserveEmails}
+                    onChange={(e) => setPreserveEmails(e.target.checked)}
+                    className="w-5 h-5 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-lg font-bold uppercase block">{t('protection.preserveEmails.title')}</span>
+                    <span className="text-sm text-gray-600">{t('protection.preserveEmails.description')}</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer p-3 bg-white border-4 border-brutalist-black hover:translate-x-1 hover:translate-y-1 transition-transform">
+                  <input
+                    type="checkbox"
+                    checked={preserveNumbers}
+                    onChange={(e) => setPreserveNumbers(e.target.checked)}
+                    className="w-5 h-5 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-lg font-bold uppercase block">{t('protection.preserveNumbers.title')}</span>
+                    <span className="text-sm text-gray-600">{t('protection.preserveNumbers.description')}</span>
                   </div>
                 </label>
               </div>

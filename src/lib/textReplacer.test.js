@@ -279,7 +279,7 @@ describe('textReplacer', () => {
     })
 
     it('應該包含逗號轉換規則', () => {
-      const commaRule = DEFAULT_RULES.find(rule => rule.from === ',')
+      const commaRule = DEFAULT_RULES.find(rule => rule.from === ', ')
       expect(commaRule).toBeDefined()
       expect(commaRule.to).toBe('，')
     })
@@ -315,12 +315,204 @@ describe('textReplacer', () => {
     })
   })
 
+  describe('preserveUrls 和 preserveEmails 選項', () => {
+    it('應該保護網址中的點號不被替換', () => {
+      const text = 'Visit https://example.com for more info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Visit https://example.com for more info。')
+    })
+
+    it('應該保護多個網址', () => {
+      const text = 'Check https://google.com and https://github.com/user/repo for details.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Check https://google.com and https://github.com/user/repo for details。')
+    })
+
+    it('應該保護 www 開頭的網址', () => {
+      const text = 'Visit www.example.com for more info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Visit www.example.com for more info。')
+    })
+
+    it('應該保護 email 中的點號和符號不被替換', () => {
+      const text = 'Contact me at test@example.com for questions.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveEmails: true })
+
+      expect(result).toBe('Contact me at test@example.com for questions。')
+    })
+
+    it('應該同時保護網址和 email', () => {
+      const text = 'Visit https://example.com or email test@example.com for help.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true, preserveEmails: true })
+
+      expect(result).toBe('Visit https://example.com or email test@example.com for help。')
+    })
+
+    it('應該處理複雜的網址（含路徑和參數）', () => {
+      const text = 'Link: https://example.com/path/to/page.html?query=1&foo=bar. Done.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Link: https://example.com/path/to/page.html?query=1&foo=bar。 Done。')
+    })
+
+    it('應該處理多個 email', () => {
+      const text = 'Email john.doe@company.com or jane.smith@example.org for info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveEmails: true })
+
+      expect(result).toBe('Email john.doe@company.com or jane.smith@example.org for info。')
+    })
+
+    it('不啟用選項時應該正常替換所有符號', () => {
+      const text = 'Visit https://example.com for info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules)
+
+      expect(result).toBe('Visit https://example。com for info。')
+    })
+
+    it('應該處理網址中的連字號', () => {
+      const text = 'Visit https://my-site.example.com. Thanks!'
+      const rules = [
+        { from: '.', to: '。' },
+        { from: '-', to: '•' },
+      ]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Visit https://my-site.example.com。 Thanks!')
+    })
+
+    it('應該使用預設規則時保護網址和 email', () => {
+      const text = 'Check https://example.com, and email test@mail.com!'
+      const result = replaceText(text, DEFAULT_RULES, { preserveUrls: true, preserveEmails: true })
+
+      expect(result).toContain('https://example.com')
+      expect(result).toContain('test@mail.com')
+      expect(result).toContain('，') // ", " 被轉換成 "，"
+      expect(result).toContain('！')
+    })
+
+    it('應該處理沒有協議的網址 (僅有 www)', () => {
+      const text = 'Go to www.google.com.tw for search.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Go to www.google.com.tw for search。')
+    })
+
+    it('應該處理 ftp 協議的網址', () => {
+      const text = 'Download from ftp://files.example.com/file.zip today.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: true })
+
+      expect(result).toBe('Download from ftp://files.example.com/file.zip today。')
+    })
+
+    it('preserveUrls: false 時不應保護網址', () => {
+      const text = 'Visit https://example.com for info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveUrls: false })
+
+      expect(result).toBe('Visit https://example。com for info。')
+    })
+
+    it('preserveEmails: false 時不應保護 email', () => {
+      const text = 'Email test@example.com for info.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveEmails: false })
+
+      expect(result).toBe('Email test@example。com for info。')
+    })
+
+    it('應該保護千分位數字格式', () => {
+      const text = 'The price is 30,000 dollars.'
+      const rules = [{ from: ', ', to: '，' }]
+      const result = replaceText(text, rules, { preserveNumbers: true })
+
+      expect(result).toBe('The price is 30,000 dollars.')
+    })
+
+    it('應該保護多個千分位數字', () => {
+      const text = 'From 1,000 to 1,000,000 items.'
+      const rules = [{ from: ', ', to: '，' }]
+      const result = replaceText(text, rules, { preserveNumbers: true })
+
+      expect(result).toContain('1,000')
+      expect(result).toContain('1,000,000')
+    })
+
+    it('應該保護小數點數字', () => {
+      const text = 'Pi is approximately 3.14.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveNumbers: true })
+
+      expect(result).toBe('Pi is approximately 3.14。')
+    })
+
+    it('應該保護百分比數字', () => {
+      const text = 'Growth rate is 99.9%.'
+      const rules = [{ from: '.', to: '。' }]
+      const result = replaceText(text, rules, { preserveNumbers: true })
+
+      expect(result).toBe('Growth rate is 99.9%。')
+    })
+
+    it('應該保護帶貨幣符號的數字', () => {
+      const text = 'Total cost is $1,234.56.'
+      const rules = [
+        { from: ', ', to: '，' },
+        { from: '.', to: '。' },
+      ]
+      const result = replaceText(text, rules, { preserveNumbers: true })
+
+      expect(result).toContain('$1,234.56')
+      expect(result).toContain('。')
+    })
+
+    it('不啟用 preserveNumbers 時應該正常替換數字中的符號', () => {
+      const text = 'The price is 30,000 dollars.'
+      const rules = [{ from: ',', to: '，' }]
+      const result = replaceText(text, rules, { preserveNumbers: false })
+
+      expect(result).toBe('The price is 30，000 dollars.')
+    })
+
+    it('應該同時保護網址、email 和數字', () => {
+      const text = 'Visit https://example.com, email test@mail.com, and pay $1,000.00!'
+      const rules = [
+        { from: ', ', to: '，' },
+        { from: '.', to: '。' },
+        { from: '!', to: '！' },
+      ]
+      const result = replaceText(text, rules, {
+        preserveUrls: true,
+        preserveEmails: true,
+        preserveNumbers: true
+      })
+
+      expect(result).toContain('https://example.com')
+      expect(result).toContain('test@mail.com')
+      expect(result).toContain('$1,000.00')
+      expect(result).toContain('！')
+    })
+  })
+
   describe('整合測試', () => {
     it('應該使用預設規則轉換文字', () => {
       const text = 'Hello, World! How are you? I am fine.'
       const result = replaceText(text, DEFAULT_RULES)
 
-      expect(result).toBe('Hello， World！ How are you？ I am fine。')
+      // DEFAULT_RULES 的逗號規則是 ", " (逗號+空白) 轉成 "，"
+      expect(result).toBe('Hello，World！ How are you？ I am fine。')
     })
 
     it('應該處理項目列表', () => {

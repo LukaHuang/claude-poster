@@ -76,6 +76,21 @@
       "description": "保留空白與換行"
     }
   },
+  "protection": {
+    "title": "🔒 保護設定",
+    "preserveUrls": {
+      "title": "保護網址",
+      "description": "網址中的符號不會被替換（如 https://example.com）"
+    },
+    "preserveEmails": {
+      "title": "保護 Email",
+      "description": "Email 中的符號不會被替換（如 test@example.com）"
+    },
+    "preserveNumbers": {
+      "title": "保護數字格式",
+      "description": "數字中的符號不會被替換（如 30,000 或 3.14）"
+    }
+  },
   "toast": {
     "copySuccess": "✓ 已成功複製到剪貼簿！",
     "copyError": "❌ 複製失敗，請手動複製"

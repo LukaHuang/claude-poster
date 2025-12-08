@@ -76,6 +76,21 @@
       "description": "Preserves spaces and line breaks"
     }
   },
+  "protection": {
+    "title": "🔒 Protection Settings",
+    "preserveUrls": {
+      "title": "Preserve URLs",
+      "description": "Symbols in URLs won't be replaced (e.g., https://example.com)"
+    },
+    "preserveEmails": {
+      "title": "Preserve Emails",
+      "description": "Symbols in emails won't be replaced (e.g., test@example.com)"
+    },
+    "preserveNumbers": {
+      "title": "Preserve Numbers",
+      "description": "Symbols in numbers won't be replaced (e.g., 30,000 or 3.14)"
+    }
+  },
   "toast": {
     "copySuccess": "✓ Successfully copied to clipboard!",
     "copyError": "❌ Copy failed, please copy manually"
